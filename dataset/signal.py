@@ -1,3 +1,6 @@
+### Methods and constants related to the processing of signals
+### Author: Florian Ramakers
+
 from scipy.io import wavfile
 import numpy as np
 from librosa import cqt
@@ -36,7 +39,7 @@ def generate_single(duration, specification):
     :param specification: A tuple (s,f) where s represents the number of the string (zero based, starting from low E) and f the fret.
     :return: A Numpy array containing float data in the interval [-1.0, 1.0] that represents the specified signal and that has the specified duration.
     """
-    data = read_wav('../samples/{}_{}.wav'.format(specification[0], specification[1]))
+    data = read_wav('samples/{}_{}.wav'.format(specification[0], specification[1]))
     return data[:int(duration * SAMPLE_RATE)]
 
 def generate_signal(duration, specification):

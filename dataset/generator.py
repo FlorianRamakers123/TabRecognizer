@@ -1,4 +1,4 @@
-### Python file related to generation of the database.
+### Python file related to the generation of the datasets.
 ### Currently only 22-fretted 6-string guitars in standard E-tuning is supported.
 ### Author: Florian Ramakers
 
@@ -10,10 +10,23 @@ from dataset.signal import generate_signal, calc_constant_q_transform
 from util.data import scale
 
 """ The path for storing the train data. """
-TRAINING_SET_PATH = '../data/train/'
+TRAINING_SET_PATH = 'data/train/'
 
 """ The path for storing the test data. """
-TEST_SET_PATH = '../data/test'
+TEST_SET_PATH = 'data/test/'
+
+""" The size of the training set. """
+TRAINING_SET_SIZE = 10
+
+""" The size of the test set. """
+TEST_SET_SIZE = 10
+
+""" The width of the input images (set by function 'imsave' implicitly). """
+IMAGE_WIDTH = 44
+
+""" The height of the input images (set by function 'imsave' implicitly). """
+IMAGE_HEIGHT = 120
+
 
 """ The complete guitar neck and its corresponding nodes. """
 # Fret:               0     1     2      3     4     5      6      7     8     9     10     11    12    13     14    15     16    17     18    19    20     21    22
@@ -55,6 +68,15 @@ def generate_random_specification():
 
     return specification
 
+def create_spectrogram(signal):
+    """
+    Create the image data for the spectrogram of the specified signal.
+    :param signal: The signal to calculate the spectrogram for.
+    :return: The black and white image data, specified in a np.uint8 array, for the spectrogram of the specified signal.
+    """
+    cqt = calc_constant_q_transform(signal)
+    return 255 - scale(cqt, 0, 255).astype(np.uint8)
+
 def generate_example():
     """
     Generate a random labeled example.
@@ -84,11 +106,24 @@ def generate_dataset(n, base_path):
         imsave(base_path + "{}.png".format(i), img)
     f.close()
 
-def create_spectrogram(signal):
+def create_input_data():
     """
-    Create the image data for the spectrogram of the specified signal.
-    :param signal: The signal to calculate the spectrogram for.
-    :return: The black and white image data, specified in a np.uint8 array, for the spectrogram of the specified signal.
+    Create the training set and test set and store them on the disk.
     """
-    cqt = calc_constant_q_transform(signal)
-    return 255 - scale(cqt, 0, 255).astype(np.uint8)
+    generate_dataset(TRAINING_SET_SIZE, TRAINING_SET_PATH)
+    generate_dataset(TEST_SET_SIZE, TEST_SET_PATH)
+
+
+def get_input_shape():
+    """
+    Get the input shape of the input data.
+    :return: A tuple indicating the input size of the input data.
+    """
+    return IMAGE_HEIGHT, IMAGE_WIDTH, 1
+
+def get_output_shape():
+    """
+    Get the output shape of the input data.
+    :return: The output size of the input data.
+    """
+    return MAX_FRET + 1
